@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: ./backend 
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./backend:/usr/src/app
+    ports:
+      - "8000:8000"
+      - "5678:5678"
+    environment:
+      - ENVIRONMENT=dev
+      - CLIENT_ID=${CLIENT_ID}
+      - CLIENT_SECRET=${CLIENT_SECRET}

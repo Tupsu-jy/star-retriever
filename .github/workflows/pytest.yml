@@ -20,7 +20,7 @@ jobs:
         run: |
           pip install pipenv
           pipenv install --dev --deploy
-          working-directory: backend
+        working-directory: backend
       - name: Run pytest
         run: |
           pipenv run pytest

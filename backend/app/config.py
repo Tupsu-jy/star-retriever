@@ -23,10 +23,10 @@ class Settings(BaseSettings):
         redirect_uri (str): The URI to which GitHub will redirect the user after authorization has been granted. 
                             It defaults to "http://localhost:8000/api/callback" but can be overridden by setting the `REDIRECT_URI` environment variable.
     """
-    environment: str = Field(default="dev", env="ENVIRONMENT")
-    client_id: str = Field(..., env="CLIENT_ID")
-    client_secret: str = Field(..., env="CLIENT_SECRET")
-    redirect_uri: str = Field(default="http://localhost:8000/api/callback", env="REDIRECT_URI")
+    environment: str = "dev"
+    client_id: str
+    client_secret: str
+    redirect_uri: str = "http://localhost:8000/api/callback"
 
     @validator("client_id", "client_secret", pre=True, always=True)
     def not_empty(cls, v):

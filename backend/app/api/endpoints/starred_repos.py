@@ -9,7 +9,6 @@ import httpx
 from pydantic import ValidationError
 from fastapi import Query
 from app.schemas import Repository, StarredRepositoriesResponse
-import os
 from app.dependencies import get_http_client, limiter, get_settings
 from app.config import Settings
 

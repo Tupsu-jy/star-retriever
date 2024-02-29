@@ -1,7 +1,7 @@
 """
 This module defines the configuration settings.
 """
-from pydantic import Field, validator
+from pydantic import validator
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):

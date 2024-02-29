@@ -17,7 +17,7 @@ Functions:
              it also sets up and waits for a debugger connection.
 """
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 import uvicorn
 from app.config import Settings
 from app.server import create_app
@@ -65,6 +65,7 @@ def start():
 
         uvicorn.run("app.run:app", host="0.0.0.0", port=8000, reload=True, log_level="info")
     else:
+        # TODO: replace with gunicorn
         uvicorn.run("app.run:app", host="0.0.0.0", port=8000, log_level="info")
 
 if __name__ == "__main__":

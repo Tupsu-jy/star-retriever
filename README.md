@@ -1,65 +1,158 @@
-# star-retriever
+# Star Retriever
 
-Retrieves starred github repos based with github oauth. Done using fastapi. It has 2 endpoints first one of which redirects the user to github oauth login and then to callback route which gets the repos from github api and then returns them to user in neat json. It has sphinx documentation at docs/build and also
-swagger ui
-http://localhost:8000/docs
+The Star Retriever api utilizes GitHub OAuth for authentication to retrieve and display a user's starred GitHub repositories in a clean JSON format. Built with FastAPI.
 
-redoc
-http://localhost:8000/redoc
+## Project Structure
 
-are available if its run in dev mode.
+```plaintext
+star-retriever
+├── backend
+│   ├── app
+│   │   ├── api
+│   │   │   └── endpoints
+│   │   │       └── starred_repos.py <-- both routes are defined here
+│   │   ├── config.py
+│   │   ├── dependencies.py
+│   │   ├── favicon.ico <-- very important :D
+│   │   ├── middleware.py
+│   │   ├── run.py <-- entrypoint
+│   │   ├── schemas.py
+│   │   └── server.py
+│   ├── Dockerfile.dev <-- docker compose files refer to these
+│   ├── Dockerfile.prod
+│   ├── docs
+│   │   └── _build
+│   │       └── html
+│   │           └── index.html <-- open this to see documentation
+│   ├── Pipfile
+│   ├── Pipfile.lock <-- pipenv is used
+│   └── tests
+│       ├── mock_test_data.json
+│       └── test_api.py
+├── docker-compose-dev.yml <-- use these to start the project
+├── docker-compose-prod.yml
+├── .env <-- this needs to be added
+├── exercise.md
+└── README.md <-- you are here
+```
 
-docker and docker compose is used.
+The project has to endpoints:
 
-the project is in backend folder because there was an aspiration to do both frontend and backend but i needed to work on my thesis. please be aware that any imperfections that might theoretically possibly be in the code would not be there if i had more time to spend on this. i think its pretty clean code overall though
+- The first redirects users to GitHub for OAuth login.
+- The second is a callback route that fetches the repositories from the GitHub API and returns them to the user.
 
-## configuration
+The project is in the backend folder because there was an aspiration to do both frontend and backend, but I needed to work on my thesis. Please be aware that any imperfections that might theoretically possibly be in the code would not be there if I had more time to spend on this. I think it's pretty clean code overall, though.
 
-there are 4 env variables but 2 of them have default values allowing you to start the project without defining them. The 2 envvariables that have to defined are CLIENT_SECRET and CLIENT_ID. These can be defined in .env file in project root from where docker compose will pick them up.
+## Documentation
 
-example .env:
-CLIENT_ID=your client id
-CLIENT_SECRET=your client secret
+When running in development mode, the API documentation is accessible through two interfaces:
 
-if these 2 are not defined the app will not start. they are related to github OAuth apps. https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app
+- **Swagger UI**: Available at [http://localhost:8000/docs](http://localhost:8000/docs), offering an interactive way to explore and test the API endpoints.
+- **ReDoc**: Found at [http://localhost:8000/redoc](http://localhost:8000/redoc), providing a more readable format for the API documentation.
 
-you can also config it by including the env variables in the docker compose start command
+For a comprehensive overview of the codebase, Sphinx documentation is generated and can be found within the `docs/build/html` directory.
 
-CLIENT_ID=your_client_id CLIENT_SECRET=your_client_secret docker-compose -f docker-compose-dev.yml up --build
+## Configuration
 
-also by adding this launch config to your .vscode/launch.json you can attach the vsc debugger to the docker container
+This project requires setting up environment variables to function correctly. There are four environment variables, out of which two (`CLIENT_SECRET` and `CLIENT_ID`) are mandatory for the project to run. These variables are needed for GitHub OAuth integration and must be defined for authentication to work.
 
+#### Mandatory Environment Variables
+
+- `CLIENT_ID`: Your GitHub application's client ID.
+- `CLIENT_SECRET`: Your GitHub application's client secret.
+
+These variables can be set in a `.env` file located at the project root, which Docker Compose automatically picks up.
+
+#### Example `.env` File:
+
+    CLIENT_ID=<your-client-id>
+    CLIENT_SECRET=<your-client-secret>
+
+For more information on creating a GitHub OAuth app, refer to the [GitHub documentation](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app).
+
+### Docker Compose Command
+
+You can also specify these environment variables directly in the Docker Compose command:
+
+`CLIENT_ID=<your_client_id> CLIENT_SECRET=<your_client_secret> docker-compose -f docker-compose-dev.yml up --build`
+
+### VS Code Debugger Configuration
+
+To attach the Visual Studio Code debugger to a running Docker container, add the following configuration to your `.vscode/launch.json` file:
+
+```json
+{
+  "name": "Python Debugger: Remote Attach",
+  "type": "debugpy",
+  "request": "attach",
+  "connect": { "host": "localhost", "port": 5678 },
+  "logToFile": true,
+  "justMyCode": true,
+  "pathMappings": [
     {
-      "name":"Python Debugger: Remote Attach",
-      "type":"debugpy",
-      "request":"attach",
-      "connect":{"host":"localhost","port":5678},
-      "logToFile": true,
-      "justMyCode": true,
-      "pathMappings":[
-        {
-          "localRoot":"${workspaceFolder}/backend",
-          "remoteRoot": "/usr/src/app"
-        }
-      ]
-    },
+      "localRoot": "${workspaceFolder}/backend",
+      "remoteRoot": "/usr/src/app"
+    }
+  ]
+}
+```
 
-## running
+This setup allows you to debug your application by connecting to the debug server running inside the Docker container.
 
-the project is meant to be started using docker compose. for that purpose there are 2 docker compose files. one for production environment and one for development environment
+## Running the Application
 
-prod version can be started with command:
-docker-compose -f docker-compose-prod.yml up --build
+The application can be launched using Docker Compose, which simplifies the setup and deployment process. There are two Docker Compose files provided to cater to different environments - development (`docker-compose-dev.yml`) and production (`docker-compose-prod.yml`).
 
-this mode means that error logs are more limited and that the api documentation is not available to user and that reload is not used for uvicorn
+### Production Environment
 
-dev version can be started with command:
-docker-compose -f docker-compose-dev.yml up --build
+To start the application in production mode, use the following command:
 
-this mode means that error logs are more informative, that the local and container code are mapped so that local changes are reflected inside container, there is debugpy listening on port 5678 to enable debugger attachment to container and that uvicorn reload is enabled so that changes are instanlty reflected in running instance and also api documentation is available at routes mentioned in introduction
+bash
 
-## testing
+`docker-compose -f docker-compose-prod.yml up --build`
 
-for manual "testing" after starting the api just go to url http://localhost:8000/api/getStarredRepos in browser and you will be redirected to github login and then you will get the starred repos
+In production mode:
 
-testing can be done by running command pytest in backend folder, provided that pytest is installed. also github actions is included and the tests are run on every push. nothing is really done with the result of those tests in github actions atm but im well aware of how to use those actions to implement proper integration testing and to prevent bad merges to main branch
+- Error logs are less detailed to protect sensitive information.
+- API documentation (Swagger UI and ReDoc) is not accessible.
+- Uvicorn's auto-reload feature is disabled for stability.
+
+### Development Environment
+
+For development purposes, you can start the application with:
+
+bash
+
+`docker-compose -f docker-compose-dev.yml up --build`
+
+Development mode features:
+
+- More detailed error logs for easier debugging.
+- Code changes in your local environment are automatically reflected inside the container, thanks to volume mapping.
+- DebugPy is enabled and listens on port 5678, allowing for remote debugging.
+- Uvicorn's auto-reload is activated, applying code changes without needing to restart the server.
+- Access to API documentation via Swagger UI (`http://localhost:8000/docs`) and ReDoc (`http://localhost:8000/redoc`).
+
+## Testing
+
+#### Manual "Testing"
+
+For a quick manual test of the API:
+
+1.  Start the API as per the instructions in the "Running" section.
+2.  Navigate to `http://localhost:8000/api/getStarredRepos` in your web browser.
+3.  You will be redirected to GitHub for OAuth login. Upon successful authentication, you'll receive a JSON response with the list of starred repositories.
+
+#### Proper Testing
+
+Tests can be run using pytest. Ensure pytest is installed and then execute the following command within the `backend` directory:
+
+bash
+
+`pytest`
+
+#### Continuous Integration
+
+Github actions is included and the tests are run on every push. Nothing is really done with the result of those tests in github actions at the moment, but I'm well aware of how to use those actions to implement proper integration testing and to prevent bad merges to main branch.
+
+ok i think im done
